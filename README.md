@@ -1,53 +1,154 @@
-<<<<<<< HEAD
-# Wizardry_Engine
-its pretty cool :) (WIP)(MINIMAL HEADLESS ENGINE)(I WILL PUSH MY RENDERER WHEN I FINISH BUT YOU CAN HOOK INTO ANY RENDERER YOU WANT)
-=======
-# Wizardry Engine API Documentation
+# Wizardry Engine
 
-## Overview
+A modular, headless, hook-based game engine written in Python. Independent systems for managing game state, entities, events, and procedural generation. Perfect for text-based, 2D, and 3D games.
 
-Wizardry is a modular, hook-based game engine written in Python. It provides independent systems for managing game state, entities, events, and more. Each system is completely decoupled from others and communicates through hooks/callbacks.
+**Status**: Production Ready (WIP) | **Philosophy**: Headless, Agnostic, Modular
+
+## Quick Start
+
+```python
+from engine.core.CameraSystem import CameraParser, RenderMode
+from engine.core.DungeonGenerationSystem import DungeonGenerationParser, DungeonConfig
+
+# Camera system for 2D/3D viewing
+camera = CameraParser()
+camera.create_camera('main', viewport_size=(8, 8), render_mode=RenderMode.MODE_2D)
+
+# Dungeon generation (multiple algorithms)
+dungeon_gen = DungeonGenerationParser()
+grid, rooms = dungeon_gen.generate_medium_dungeon()
+
+# Later: switch to 3D (renderer adapts automatically!)
+camera.set_active_render_mode(RenderMode.MODE_3D)
+```
 
 ## Architecture Pattern
 
-The engine follows a consistent three-layer pattern:
+All systems follow a consistent three-layer design:
 
 ```
-Data Class (entity.py)
+Data Class (pure data + serialization)
     ↓
-System Class (entity_system.py) 
+System Class (headless logic + hooks)
     ↓
-Parser Class (entity_parser.py) - Game-facing API
+Parser Class (game-facing API)
 ```
 
-### Layer Breakdown
+## Core Systems
 
-1. **Data Class** (`*_data.py` or `class.py`)
-   - Contains pure data structures
-   - Enums for types and flags
-   - Serialization methods (to_dict/from_dict)
-   - Helper methods specific to the data
+### 1. **Camera System** - Headless 2D/3D Camera
+- Multiple cameras with named access
+- Viewport and zoom control
+- Entity tracking
+- Visibility culling
+- 2D ↔ 3D mode switching
+- Hook-based renderer integration
 
-2. **System Class** (`*_system.py`)
-   - Engine-level business logic
-   - Manages internal state and collections
-   - Defines hooks for integration
-   - No direct game code dependencies
+**Usage**:
+```python
+from engine.core.CameraSystem import CameraParser, RenderMode
 
-3. **Parser Class** (`*_parser.py`)
-   - Game-facing API
-   - Wrapper around the system
-   - Exposes clean methods for game code
-   - Manages hook registration
-   - Only class directly used by game code
+parser = CameraParser()
+parser.create_camera('town', viewport_size=(8, 8))
+parser.create_camera('dungeon', viewport_size=(30, 30))
+parser.set_active_camera('dungeon')
+parser.follow_entity_with_active_camera('player')
+```
 
-## Available Systems
+### 2. **Dungeon Generation System** - Procedural Dungeon Creation
+- 3 generation algorithms (Random Rooms, Cellular Automata, BSP)
+- Quest room placement in accessible areas
+- Room management and connectivity
+- Deterministic (seeded) generation
+- Hook-based integration
 
-### 1. Entity System
+**Usage**:
+```python
+from engine.core.DungeonGenerationSystem import DungeonGenerationParser, DungeonConfig
 
-**Purpose**: Manage game entities (players, enemies, NPCs, items)
+parser = DungeonGenerationParser()
 
-**Files**:
+# Quick generation
+grid, rooms = parser.generate_medium_dungeon()
+
+# With quest rooms
+quest_room = parser.create_quest_room(width=5, height=5, room_id='boss_chamber')
+grid, rooms = parser.generate_dungeon(config, quest_rooms=[quest_room])
+```
+
+### 3. **Grid Utilities** - Extended Grid Operations
+New methods on Grid class for advanced generation:
+- `clone()` - Deep copy grids
+- `subgrid(x, y, w, h)` - Extract regions
+- `stamp(other_grid, x, y)` - Paste grids
+- `find_tiles(type, flag)` - Search for tiles
+- `is_region_walkable(x, y, w, h)` - Check areas
+- `find_path(start, end)` - BFS pathfinding
+- `flood_fill(pos, flag)` - Connected regions
+- `random_floor_tile()` - Random walkable position
+- `get_distance(pos1, pos2)` - Manhattan distance
+
+**Usage**:
+```python
+# Pathfinding
+path = grid.find_path((0, 0), (10, 10))
+
+# Flood fill
+connected_tiles = grid.flood_fill((5, 5))
+
+# Region check
+is_clear = grid.is_region_walkable(x, y, width, height)
+```
+
+### 4. Entity System - Game Entities (Players, Enemies, NPCs, Items)
+### 5. Turn System - Turn-based combat and action ordering
+### 6. Input System - Input handling with context-based actions
+### 7. Message Log - Game messages and notifications
+### 8. Scene System - Scene and level management
+### 9. State System - Game states (menu, gameplay, battle, etc.)
+### 10. Visibility System - Line-of-sight and vision culling
+### 11. Direction Movement - Directional movement with facing
+### 12. Event System - Event publishing and subscribing
+### 13. Clock System - Engine timing and FPS management
+
+## Design Philosophy
+
+### ✅ Headless
+- No rendering code in engine
+- Pure Python, no pygame imports in core systems
+- Integrates with any renderer via hooks
+
+### ✅ Agnostic
+- Works with 2D, 3D, text-based games
+- No game-specific assumptions
+- Flexible data structures
+
+### ✅ Modular
+- Systems are independent
+- Hook-based communication
+- Use only what you need
+
+### ✅ Extendable
+- Easy to add custom systems
+- Follow three-layer pattern
+- Inherit from base classes
+
+## Integration Example
+
+See `Test_game/test_game.py` for a complete example integrating:
+- Camera system for viewport management
+- Dungeon generation for procedural levels
+- Grid system with pathfinding
+- Entity movement and state management
+- Scene transitions with camera switching
+
+Run the test game:
+```bash
+cd WizardryEngine
+python3 -m Test_game.test_game
+```
+
+## File Structure
 - `engine/core/EntitySystem/entity.py`
 - `engine/core/EntitySystem/entity_system.py`
 - `engine/core/EntitySystem/entity_parser.py`
@@ -673,4 +774,3 @@ Wizardry/
 ## License
 
 This engine is part of the Wizardry project.
->>>>>>> 47cc368 (Initial commit: Complete Wizardry Engine with all systems and comprehensive README)

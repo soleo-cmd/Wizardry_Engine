@@ -34,33 +34,45 @@ class DirectionMovementSystem:
     # Relative movement
     # -------------------
     def move_forward(self, entity):
-        return self._move_direction(entity, entity.facing)
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if not facing:
+            return False
+        return self._move_direction(entity, facing)
 
     def move_backward(self, entity):
-        return self._move_direction(entity, entity.facing.opposite())
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if not facing:
+            return False
+        return self._move_direction(entity, facing.opposite())
 
     def strafe_left(self, entity):
-        return self._move_direction(entity, entity.facing.turn_left())
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if not facing:
+            return False
+        return self._move_direction(entity, facing.turn_left())
 
     def strafe_right(self, entity):
-        return self._move_direction(entity, entity.facing.turn_right())
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if not facing:
+            return False
+        return self._move_direction(entity, facing.turn_right())
 
     # -------------------
     # Rotation
     # -------------------
     def turn_left(self, entity):
-        entity.facing = entity.facing.turn_left()
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if facing:
+            entity.data['facing'] = facing.turn_left()
+            if hasattr(entity, 'facing'):
+                entity.facing = entity.data['facing']
         return True
 
     def turn_right(self, entity):
-        entity.facing = entity.facing.turn_right()
+        facing = entity.data.get('facing', entity.facing if hasattr(entity, 'facing') else None)
+        if facing:
+            entity.data['facing'] = facing.turn_right()
+            if hasattr(entity, 'facing'):
+                entity.facing = entity.data['facing']
         return True
 
-#hooks
-	self.on_move_created: Optional[Callable[[Action], None]] = None
-
-	def move_forward(self, entity, facing):
-	    action = MoveAction(entity, *DIRECTION_VECTORS[facing])
-	    if self.on_move_created:
-	        self.on_move_created(action)
-	    return action

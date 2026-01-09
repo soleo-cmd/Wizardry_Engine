@@ -143,15 +143,24 @@ class PygameRenderer:
         for text_obj in text_objects:
             if not text_obj.is_visible:
                 continue
-            
+            # Determine font size: prefer per-text custom_data, fall back to 12
+            size = 12
+            try:
+                if "font_size" in text_obj.custom_data:
+                    size = int(text_obj.custom_data["font_size"])
+            except Exception:
+                size = 12
+
             # Get or create font
-            font_key = (text_obj.font_name, 12)  # Size from font config in real impl
+            font_key = (text_obj.font_name, size)
             if font_key not in self.font_cache:
-                self.font_cache[font_key] = pygame.font.Font(None, font_key[1])
-            
+                # If a file-based font is available, it should have been loaded
+                # by TextSystem; here we use pygame default font if not present
+                self.font_cache[font_key] = pygame.font.Font(None, size)
+
             font = self.font_cache[font_key]
             text_surface = font.render(text_obj.text, True, text_obj.color[:3])
-            
+
             pos = text_obj.transform.position.to_tuple()
             self.screen.blit(text_surface, (int(pos[0]), int(pos[1])))
     
@@ -170,14 +179,35 @@ class PygameRenderer:
         Process pygame events.
         
         Returns:
-            List of pygame events
+            List of simplified event dicts with keys: 'type' and optional 'key'
         """
-        events = []
+        out_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            events.append(event)
-        return events
+                out_events.append({'type': 'QUIT'})
+                continue
+
+            # Convert key events to a small backend-agnostic format
+            if event.type == pygame.KEYDOWN and hasattr(event, 'key'):
+                try:
+                    name = pygame.key.name(event.key)
+                    out_events.append({'type': 'KEYDOWN', 'key': name.upper()})
+                except Exception:
+                    out_events.append({'type': 'KEYDOWN', 'key': None})
+
+            elif event.type == pygame.KEYUP and hasattr(event, 'key'):
+                try:
+                    name = pygame.key.name(event.key)
+                    out_events.append({'type': 'KEYUP', 'key': name.upper()})
+                except Exception:
+                    out_events.append({'type': 'KEYUP', 'key': None})
+
+            else:
+                # For other events, include their type name if possible
+                out_events.append({'type': str(event.type)})
+
+        return out_events
     
     def tick(self):
         """Tick the clock."""

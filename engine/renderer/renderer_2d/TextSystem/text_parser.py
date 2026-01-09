@@ -67,6 +67,7 @@ class TextParser:
         color: Tuple[int, int, int, int] = (255, 255, 255, 255),
         layer: LayerType = LayerType.UI,
         name: Optional[str] = None,
+        font_size: Optional[int] = None,
     ) -> Optional[str]:
         """
         Render text at a position.
@@ -96,6 +97,7 @@ class TextParser:
             font_name=font_name,
             color=color,
             layer=layer,
+            font_size=font_size,
         )
         
         return text_obj.name if text_obj else None

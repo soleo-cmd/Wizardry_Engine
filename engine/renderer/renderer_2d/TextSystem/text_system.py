@@ -120,6 +120,7 @@ class TextSystem:
         font_name: str = "default",
         color: tuple = (255, 255, 255, 255),
         layer = None,
+        font_size: int | None = None,
     ) -> Optional[TextData]:
         """
         Create a text object for rendering.
@@ -154,6 +155,9 @@ class TextSystem:
             color=color,
             layer=layer,
         )
+        # Attach optional font size to custom_data for backends to use
+        if font_size is not None:
+            text_obj.custom_data["font_size"] = int(font_size)
         
         self.text_objects[name] = text_obj
         

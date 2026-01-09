@@ -93,6 +93,7 @@ class HeadlessRenderer:
                         'text': text_obj.text,
                         'position': text_obj.transform.position.to_tuple(),
                         'font': text_obj.font_name,
+                        'font_size': text_obj.custom_data.get('font_size') if isinstance(text_obj.custom_data, dict) else None,
                         'color': text_obj.color,
                     }
                 ))

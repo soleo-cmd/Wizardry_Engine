@@ -5,7 +5,7 @@ Integrates DrawingSystem, SpriteSystem, TextSystem with backends.
 All systems communicate through hooks - complete decoupling.
 """
 
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from .Core.renderer_config import RenderConfig
 from .DrawingSystem.drawing_system import DrawingSystem
 from .DrawingSystem.drawing_parser import DrawingParser
@@ -15,6 +15,7 @@ from .TextSystem.text_system import TextSystem
 from .TextSystem.text_parser import TextParser
 from .Backends.PygameRenderer.pygame_backend import PygameRenderer
 from .Backends.HeadlessRenderer.headless_backend import HeadlessRenderer
+# Renderer must not perform input handling - engine handles input.
 
 
 class Renderer2D:
@@ -152,9 +153,9 @@ class Renderer2D:
         """Get time since last tick."""
         return self.backend.get_delta_time()
     
-    def process_events(self):
-        """Process input events."""
-        return self.backend.process_events()
+    # Input processing intentionally removed. Engine should poll
+    # backend events directly (e.g. `renderer.backend.process_events()`)
+    # and route them into the engine InputSystem.
     
     def get_backend_type(self) -> str:
         """Get current backend type."""
