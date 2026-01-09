@@ -1,6 +1,6 @@
 <<<<<<< HEAD
 # Wizardry_Engine
-its pretty cool :)
+its pretty cool :) (WIP)(MINIMAL HEADLESS ENGINE)(I WILL PUSH MY RENDERER WHEN I FINISH BUT YOU CAN HOOK INTO ANY RENDERER YOU WANT)
 =======
 # Wizardry Engine API Documentation
 
